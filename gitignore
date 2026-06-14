@@ -1,0 +1,24 @@
+# Modelos entrenados (demasiado pesados para Git)
+*.pth
+
+# Dataset
+archive/
+clasesSele/
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/

@@ -1,0 +1,620 @@
+
+raw
+Index · HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DermAI — Clasificador Dermatológico</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f7f3ee;
+      --surface: #ffffff;
+      --border: #d9cfc4;
+      --brown-1: #3d2b1f;
+      --brown-2: #6b4c38;
+      --brown-3: #9b7355;
+      --brown-4: #c9aa8c;
+      --brown-5: #e8ddd3;
+      --text-primary: #1a1210;
+      --text-secondary: #5a4a3f;
+      --text-muted: #9b8e86;
+    }
+ 
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+ 
+    header {
+      background: var(--brown-1);
+      padding: 0 2.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+ 
+    .logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+ 
+    .logo-dot { color: var(--brown-4); }
+ 
+    .edu-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--brown-4);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      border: 1px solid var(--brown-3);
+      padding: 0.25rem 0.6rem;
+    }
+ 
+    .hero {
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 2.5rem 2rem;
+      background: var(--surface);
+    }
+ 
+    .hero-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--brown-3);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.6rem;
+    }
+ 
+    .hero h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--brown-1);
+      line-height: 1.25;
+      margin-bottom: 0.6rem;
+    }
+ 
+    .hero p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+ 
+    .workspace {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2rem 2.5rem;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+ 
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+ 
+    .panel-header {
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+ 
+    .panel-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+ 
+    .model-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+ 
+    .model-toggle button {
+      flex: 1;
+      padding: 0.35rem 0.8rem;
+      border: none;
+      background: transparent;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+ 
+    .model-toggle button:first-child { border-right: 1px solid var(--border); }
+ 
+    .model-toggle button.active {
+      background: var(--brown-1);
+      color: #fff;
+      font-weight: 500;
+    }
+ 
+    .model-toggle button:hover:not(.active) { background: var(--brown-5); }
+ 
+    /* UPLOAD */
+    .upload-zone { padding: 1.25rem; border-bottom: 1px solid var(--border); }
+ 
+    .drop-area {
+      border: 1.5px dashed var(--brown-4);
+      padding: 2rem 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+ 
+    .drop-area:hover, .drop-area.dragover {
+      border-color: var(--brown-2);
+      background: var(--brown-5);
+    }
+ 
+    .drop-icon {
+      width: 28px;
+      height: 28px;
+      margin: 0 auto 0.6rem;
+      color: var(--brown-3);
+    }
+ 
+    .drop-area h3 {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--brown-2);
+      margin-bottom: 0.2rem;
+    }
+ 
+    .drop-area p { font-size: 0.7rem; color: var(--text-muted); }
+ 
+    #file-input { display: none; }
+ 
+    /* PREVIEW - reemplaza el drop-area */
+    .preview-zone { display: none; }
+ 
+    .preview-img-wrap { position: relative; }
+ 
+    .preview-img-wrap img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid var(--border);
+    }
+ 
+    .change-img-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(61,43,31,0.75);
+      color: #fff;
+      border: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+ 
+    .change-img-btn:hover { background: var(--brown-1); }
+ 
+    .analyze-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--brown-1);
+      color: #fff;
+      border: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: block;
+    }
+ 
+    .analyze-btn:hover { background: var(--brown-2); }
+    .analyze-btn:disabled { background: var(--brown-4); cursor: not-allowed; }
+ 
+    .notice {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+ 
+    .notice strong { color: var(--brown-2); }
+ 
+    /* RESULTS */
+    .results-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      min-height: 400px;
+    }
+ 
+    .results-empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+ 
+    .results-empty-state svg {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 1rem;
+      opacity: 0.2;
+    }
+ 
+    .results-empty-state p { font-size: 0.8rem; }
+ 
+    .results-body { display: none; }
+ 
+    .result-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+ 
+    .result-item {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--brown-5);
+      animation: slideIn 0.3s ease forwards;
+      opacity: 0;
+    }
+ 
+    .result-item:last-child { border-bottom: none; }
+    .result-item:nth-child(2) { animation-delay: 0.08s; }
+    .result-item:nth-child(3) { animation-delay: 0.16s; }
+    .result-item:nth-child(4) { animation-delay: 0.24s; }
+ 
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+ 
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+    }
+ 
+    .result-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+ 
+    .result-label.primary {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--brown-1);
+    }
+ 
+    .result-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--brown-3);
+    }
+ 
+    .result-pct.primary {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--brown-1);
+    }
+ 
+    .bar-bg { height: 2px; background: var(--brown-5); margin-bottom: 0.6rem; }
+ 
+    .bar-fg {
+      height: 2px;
+      background: var(--brown-3);
+      width: 0;
+      transition: width 0.7s ease;
+    }
+ 
+    .bar-fg.primary { background: var(--brown-1); }
+ 
+    .result-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+ 
+    .result-tip {
+      font-size: 0.72rem;
+      color: var(--brown-2);
+      background: var(--brown-5);
+      border-left: 2px solid var(--brown-3);
+      padding: 0.5rem 0.75rem;
+      line-height: 1.6;
+      margin-top: 0.5rem;
+    }
+ 
+    .result-tip-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--brown-3);
+      margin-bottom: 0.2rem;
+    }
+ 
+    .loading-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+ 
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--brown-2);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 0.75rem;
+    }
+ 
+    .spinner-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+ 
+    @keyframes spin { to { transform: rotate(360deg); } }
+ 
+    footer {
+      text-align: center;
+      padding: 1.25rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+ 
+    @media (max-width: 768px) {
+      .workspace { grid-template-columns: 1fr; padding: 1rem; }
+      .hero { padding: 1.5rem 1rem; }
+      header { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+ 
+<header>
+  <div class="logo">Derm<span class="logo-dot">.</span>AI</div>
+  <div class="edu-badge">Uso educativo</div>
+</header>
+ 
+<div class="hero">
+  <div class="hero-label">Sistema de clasificación dermatológica · TFG </div>
+  <h1>Análisis automatizado de imágenes cutáneas</h1>
+  <p>Herramienta de apoyo informativo basada en aprendizaje profundo. Selecciona un modelo, sube una imagen y obtén las afecciones más probables. No sustituye la valoración médica profesional.</p>
+</div>
+ 
+<div class="workspace">
+ 
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Configuración</span>
+        <div class="model-toggle">
+          <button class="active" onclick="setModel('10')" id="btn-10">10 clases</button>
+          <button onclick="setModel('23')" id="btn-23">23 clases</button>
+        </div>
+      </div>
+ 
+      <!-- DROP AREA -->
+      <div class="upload-zone" id="upload-zone">
+        <div class="drop-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <h3>Seleccionar imagen</h3>
+          <p>Arrastra o haz clic · JPG, PNG</p>
+        </div>
+        <input type="file" id="file-input" accept="image/*"/>
+      </div>
+ 
+      <!-- PREVIEW (reemplaza drop-area) -->
+      <div class="preview-zone" id="preview-zone">
+        <div class="preview-img-wrap">
+          <img id="preview-img" src="" alt="Imagen seleccionada"/>
+          <button class="change-img-btn" onclick="cambiarImagen()">Cambiar</button>
+        </div>
+        <button class="analyze-btn" id="analyze-btn" onclick="analizar()">Analizar imagen</button>
+      </div>
+ 
+      <div class="notice">
+        <strong>Aviso:</strong> Los resultados son orientativos y no constituyen diagnóstico médico. Ante cualquier afección cutánea consulte siempre con un dermatólogo o profesional sanitario.
+      </div>
+    </div>
+  </div>
+ 
+  <!-- RESULTS -->
+  <div class="results-panel" id="results-panel">
+    <div class="results-empty-state" id="results-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="1"/>
+        <line x1="9" y1="12" x2="15" y2="12"/>
+        <line x1="9" y1="16" x2="13" y2="16"/>
+      </svg>
+      <p>Sube una imagen para ver los resultados</p>
+    </div>
+    <div class="results-body" id="results-body"></div>
+  </div>
+ 
+</div>
+ 
+<footer>DERMAI &nbsp;·&nbsp; TFG ICAI 2026 &nbsp;·&nbsp; SOLO USO EDUCATIVO E INFORMATIVO</footer>
+ 
+<script>
+  let modeloActual = '10';
+  let archivoActual = null;
+ 
+  const consejos = {
+    'Acne/Rosacea': 'Evita tocarte la zona afectada y usa productos no comedogénicos. Mantén una rutina de limpieza suave. Si persiste, un dermatólogo puede recetarte tratamiento tópico o antibiótico.',
+    'Actinic Keratosis/BCC': 'Evita la exposición solar sin protección. Usa factor 50+ a diario. Es importante que un especialista evalúe estas lesiones cuanto antes para descartar malignidad.',
+    'Atopic Dermatitis': 'Hidrata la piel regularmente con cremas sin perfume. Evita jabones agresivos y tejidos sintéticos. Los antihistamínicos pueden aliviar el picor. Consulta a tu médico si el brote empeora.',
+    'Bullous Disease': 'Evita frotar o reventar las ampollas. Mantén la zona limpia y seca. Esta afección requiere evaluación médica urgente para determinar su causa y tratamiento.',
+    'Cellulitis/Impetigo': 'Limpia suavemente la zona afectada. Esta infección bacteriana generalmente requiere antibióticos recetados por un médico. No compartas ropa ni toallas.',
+    'Eczema': 'Hidrata la piel con frecuencia, especialmente tras el baño. Evita el estrés y los desencadenantes conocidos. Los corticoides tópicos leves pueden aliviar los brotes bajo supervisión médica.',
+    'Drug Eruptions': 'Si sospechas que una erupción está relacionada con algún medicamento, consulta a tu médico antes de suspenderlo. No dejes de tomar ningún tratamiento sin indicación médica.',
+    'Alopecia': 'La pérdida de cabello puede tener múltiples causas. Evita el estrés y una dieta deficiente. Un dermatólogo puede determinar el tipo de alopecia y el tratamiento más adecuado.',
+    'Herpes/HPV': 'Evita el contacto directo con la zona afectada durante los brotes. Los antivirales pueden reducir la duración y frecuencia. Consulta a tu médico para un diagnóstico confirmado.',
+    'Pigmentation Disorders': 'Usa protector solar a diario para evitar que las manchas se intensifiquen. Algunos tratamientos despigmentantes requieren prescripción médica. La paciencia es clave en estos casos.',
+    'Lupus': 'Evita la exposición solar y usa protección adecuada. El lupus cutáneo requiere seguimiento médico regular. No ignores síntomas sistémicos como fatiga o dolor articular.',
+    'Melanoma/Nevi': 'Cualquier lunar que cambie de forma, color o tamaño debe ser evaluado por un dermatólogo de inmediato. La detección temprana es fundamental para el pronóstico.',
+    'Nail Fungus': 'Mantén las uñas cortas y secas. Evita caminar descalzo en zonas húmedas públicas. Los antifúngicos tópicos u orales son necesarios; consulta a tu médico para el tratamiento más adecuado.',
+    'Contact Dermatitis': 'Identifica y evita el alérgeno o irritante causante. Lava bien la zona con agua y jabón suave. Los corticoides tópicos alivian la inflamación bajo supervisión médica.',
+    'Psoriasis/Lichen Planus': 'Hidrata la piel regularmente y evita factores desencadenantes como el estrés. El tratamiento es crónico y requiere seguimiento dermatológico. No abandones la medicación sin consultar.',
+    'Scabies/Lyme': 'La sarna es muy contagiosa: lava toda la ropa y ropa de cama. La enfermedad de Lyme requiere antibióticos. En ambos casos, acude al médico cuanto antes.',
+    'Seborrheic Keratosis': 'Son lesiones benignas que no requieren tratamiento salvo por motivos estéticos. Si una lesión cambia de aspecto, consulta a un dermatólogo para descartarproblemas.',
+    'Systemic Disease': 'Las manifestaciones cutáneas de enfermedades sistémicas requieren evaluación médica completa. No trates solo la piel: el problema puede tener un origen interno.',
+    'Tinea/Candidiasis': 'Mantén la zona afectada seca y bien ventilada. Los antifúngicos tópicos son generalmente eficaces, pero en casos extensos puede ser necesario tratamiento oral.',
+    'Urticaria': 'Los antihistamínicos pueden aliviar el picor. Intenta identificar el desencadenante (alimentos, medicamentos, estrés). Si la urticaria es grave o persistente, consulta a tu médico.',
+    'Vascular Tumors': 'La mayoría son benignos y no requieren tratamiento urgente. Sin embargo, cualquier lesión vascular nueva o que crezca debe ser evaluada por un especialista.',
+    'Vasculitis': 'La vasculitis cutánea puede ser signo de una enfermedad sistémica. Consulta a tu médico cuanto antes, especialmente si aparecen otros síntomas como fiebre o dolor.',
+    'Warts/Molluscum': 'Son infecciones víricas que a menudo desaparecen solas. Evita rascarte para no extenderlas. Tu dermatólogo puede eliminarlas con crioterapia u otros tratamientos si lo consideras necesario.',
+  };
+ 
+  function setModel(m) {
+    modeloActual = m;
+    document.getElementById('btn-10').classList.toggle('active', m === '10');
+    document.getElementById('btn-23').classList.toggle('active', m === '23');
+  }
+ 
+  const dropZone = document.getElementById('drop-zone');
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) cargarArchivo(e.dataTransfer.files[0]);
+  });
+ 
+  document.getElementById('file-input').addEventListener('change', e => {
+    if (e.target.files[0]) cargarArchivo(e.target.files[0]);
+  });
+ 
+  function cargarArchivo(file) {
+    archivoActual = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('preview-img').src = ev.target.result;
+      document.getElementById('upload-zone').style.display = 'none';
+      document.getElementById('preview-zone').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    resetResultados();
+  }
+ 
+  function cambiarImagen() {
+    document.getElementById('upload-zone').style.display = 'block';
+    document.getElementById('preview-zone').style.display = 'none';
+    document.getElementById('file-input').value = '';
+    archivoActual = null;
+    resetResultados();
+  }
+ 
+  function resetResultados() {
+    document.getElementById('results-empty').style.display = 'block';
+    document.getElementById('results-body').style.display = 'none';
+    document.getElementById('results-body').innerHTML = '';
+  }
+ 
+  async function analizar() {
+    if (!archivoActual) return;
+    const btn = document.getElementById('analyze-btn');
+    btn.disabled = true;
+    btn.textContent = 'Analizando...';
+ 
+    document.getElementById('results-empty').style.display = 'none';
+    document.getElementById('results-body').style.display = 'block';
+    document.getElementById('results-body').innerHTML = `
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div class="spinner-label">Procesando imagen</div>
+      </div>`;
+ 
+    const formData = new FormData();
+    formData.append('file', archivoActual);
+ 
+    try {
+      const endpoint = modeloActual === '10' ? '/predict/10clases' : '/predict/23clases';
+      const res = await fetch(endpoint, { method: 'POST', body: formData });
+      const data = await res.json();
+      mostrarResultados(data.resultados, data.modelo);
+    } catch {
+      document.getElementById('results-body').innerHTML =
+        `<div class="results-empty-state"><p>Error de conexión. Verifica que el backend está activo.</p></div>`;
+    }
+ 
+    btn.disabled = false;
+    btn.textContent = 'Analizar imagen';
+  }
+ 
+  function mostrarResultados(resultados, modelo) {
+    const body = document.getElementById('results-body');
+    body.innerHTML = `<div class="result-meta">Modelo: ${modelo} &nbsp;·&nbsp; Top 3 resultados</div>`;
+ 
+    resultados.forEach((r, i) => {
+      const primary = i === 0;
+      const consejo = consejos[r.clase] || '';
+      const div = document.createElement('div');
+      div.className = 'result-item';
+      div.innerHTML = `
+        <div class="result-row">
+          <span class="result-label ${primary ? 'primary' : ''}">${r.clase}</span>
+          <span class="result-pct ${primary ? 'primary' : ''}">${r.probabilidad}%</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fg ${primary ? 'primary' : ''}" id="bar-${i}"></div></div>
+        <div class="result-desc">${r.descripcion}</div>
+        ${primary && consejo ? `
+        <div class="result-tip">
+          <div class="result-tip-label">Orientación general</div>
+          ${consejo}
+        </div>` : ''}
+      `;
+      body.appendChild(div);
+      setTimeout(() => {
+        document.getElementById(`bar-${i}`).style.width = r.probabilidad + '%';
+      }, 120 + i * 80);
+    });
+  }
+</script>
+</body>
+</html>
